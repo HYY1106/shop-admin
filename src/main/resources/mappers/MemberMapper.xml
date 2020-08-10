@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC
+    "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fh.shop.admin.mapper.member.MemberMapper">
+
+	<!--条件查询-->
+	<sql id="memberWhere">
+		<where>
+
+			<if test="memberName != null and memberName != ''">
+				memberName like concat('%',#{memberName},'%')
+			</if>
+
+
+			<if test="realName != null and realName != ''">
+				and realName like concat('%',#{realName},'%')
+			</if>
+
+
+			<if test="minDate != null">
+				and birthday >= #{minDate}
+			</if>
+
+			<if test="maxDate != null">
+				and birthday &lt;= #{maxDate}
+			</if>
+
+			<if test="shengId != null and shengId > -1">
+				and shengId = #{shengId}
+			</if>
+			<if test="shiId != null and shiId > -1">
+				and shiId = #{shiId}
+			</if>
+			<if test="xianId != null and xianId > -1">
+				and xianId = #{xianId}
+			</if>
+
+		</where>
+	</sql>
+
+	<!--查询总条数-->
+	<select id="queryCount" parameterType="com.fh.shop.admin.param.member.MemberSearchParam" resultType="long">
+		select count(*) from t_member
+		<include refid="memberWhere"></include>
+	</select>
+
+	<!--查询分页列表-->
+	<select id="findPageList" parameterType="com.fh.shop.admin.param.member.MemberSearchParam" resultType="com.fh.shop.admin.po.member.Member">
+		select t.* from (
+		select * from t_member
+		<include refid="memberWhere"></include>
+		order by id desc
+		) t
+		limit #{start},#{length}
+	</select>
+
+
+</mapper>

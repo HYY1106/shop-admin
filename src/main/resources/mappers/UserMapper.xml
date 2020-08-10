@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC
+    "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fh.shop.admin.mapper.user.UserMapper">
+
+     <!--条件查询-->
+	<sql id="userWhere">
+		<where>
+			<if test="userName != null and userName != ''">
+				userName like concat('%',#{userName},'%')
+			</if>
+
+			<if test="realName != null and realName != ''">
+				and realName like concat('%',#{realName},'%')
+			</if>
+		</where>
+	</sql>
+
+	<!--总条数-->
+	<select id="queryCount" parameterType="com.fh.shop.admin.param.user.UserSearchParam" resultType="long">
+		select count(*) from t_user
+		<include refid="userWhere"></include>
+	</select>
+	<!--获取分页列表-->
+	<select id="findPageList" parameterType="com.fh.shop.admin.param.user.UserSearchParam" resultType="com.fh.shop.admin.po.user.User">
+		select t.* from (
+		select id,userName,password,realName from t_user
+		<include refid="userWhere"></include>
+		order by id desc
+         ) t
+		limit #{start},#{length}
+	</select>
+
+	<!--添加-->
+	<insert id="addUser" parameterType="com.fh.shop.admin.po.user.User">
+		insert into t_user (userName,realName,password)
+		values (#{userName},#{realName},#{password})
+	</insert>
+
+	<!--回显-->
+	<select id="findUser" parameterType="long" resultType="com.fh.shop.admin.po.user.User">
+		select id,username,realName,password from t_user where id=#{v}
+	</select>
+
+	<!--修改-->
+	<update id="updateUser" parameterType="com.fh.shop.admin.po.user.User">
+		update t_user set userName=#{userName},realName=#{realName},password=#{password}
+		where id = #{id}
+	</update>
+
+    <!--删除-->
+	<delete id="deleteUser">
+		delete from t_user where id in
+		<foreach collection="list" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</delete>
+
+
+	<select id="findUserByUserName" parameterType="string" resultType="com.fh.shop.admin.po.user.User">
+		select id,userName,realName,password,loginTime,loginCount from t_user where userName=#{v}
+	</select>
+
+	<update id="updateLoginTime">
+		update t_user set loginTime=#{currTime} where id=#{userId}
+	</update>
+
+
+	<update id="updateLoginCount" parameterType="long">
+		update t_user set logincount=1 where id=#{v}
+	</update>
+
+	<update id="incrLoginCount" parameterType="long">
+		update t_user set logincount=logincount+1 where id=#{v}
+	</update>
+	
+	<!--<select id="findAllUserList" parameterType="com.fh.shop.admin.param.user.UserSearchParam" resultType="com.fh.shop.admin.po.user.User">
+		select u.id,username,a1.areaName "shengName",a2.areaName "shiName",a3.areaName "xianName" from t_user u
+		left join t_area a1 on u.shengid=a1.id
+		left join t_area a2 on u.shiid=a2.id
+		left join t_area a3 on u.xianid=a3.id
+		<include refid="userWhere"></include>
+		order by u.id desc
+	</select>-->
+
+
+
+</mapper>

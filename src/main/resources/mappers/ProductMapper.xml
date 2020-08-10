@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC
+    "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fh.shop.admin.mapper.product.ProductMapper">
+	<sql id="sqlWhere">
+		<!-- 动态条件查询 -->
+		<where>
+            <if test="productName != null and productName != ''">
+				productName like concat('%',#{productName},'%')
+			</if>
+
+			<if test="minDate != null">
+				and createDate >= #{minDate}
+			</if>
+			<if test="maxDate != null">
+				and createDate &lt;= #{maxDate}
+			</if>
+
+			<if test="minPrice != null">
+				and price >= #{minPrice}
+			</if>
+			<if test="maxPrice != null">
+				and price &lt;= #{maxPrice}
+			</if>
+
+			<if test="brandId != null and brandId != -1">
+				and brandId = #{brandId}
+			</if>
+		</where>
+	</sql>
+
+	<!--总条数-->
+	<select id="findCount" parameterType="com.fh.shop.admin.param.product.ProductParam" resultType="long">
+		select count(*) from t_product p
+		left join t_brand b
+		on p.brandId = b.id
+		<include refid="sqlWhere"></include>
+	</select>
+
+	<!--查询-->
+	<select id="findPageList" parameterType="com.fh.shop.admin.param.product.ProductParam" resultType="com.fh.shop.admin.po.product.Product">
+		select t.* from (
+		select p.id,productName,price,brandName,createDate,insertTime,updateTime,mainImagePath,isHot,status from t_product p
+		left join t_brand b
+		on p.brandId = b.id
+		<include refid="sqlWhere"></include>
+		order by id desc
+		)t
+		limit #{start},#{length}
+	</select>
+
+	<!--回显-->
+    <select id="findProductById" parameterType="long" resultType="com.fh.shop.admin.po.product.Product">
+		select id,productName,price,brandId,mainImagePath from t_product where id=#{v}
+	</select>
+</mapper>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fh.shop.admin.mapper.category.ICategoryMapper">
+
+    <select id="queryCategory" resultType="com.fh.shop.admin.po.category.Category">
+        select * from t_category
+    </select>
+
+    <select id="queryCategoryAll" parameterType="int" resultType="com.fh.shop.admin.po.category.Category">
+        select * from t_category where pid = #{id}
+    </select>
+
+    <insert id="addCategory" parameterType="com.fh.shop.admin.po.category.Category">
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            select last_insert_id()
+        </selectKey>
+        insert into t_category(categoryName,pid) values(#{categoryName} , #{pid})
+    </insert>
+
+    <delete id="deleteCategory">
+        delete from t_category where id in
+        <foreach collection="list" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>
